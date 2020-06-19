@@ -1,0 +1,23 @@
+---
+- name: Check if HDMI is on
+  command: /opt/vc/bin/tvservice -s
+  register: rpi_tvservice_result
+  changed_when: false
+
+- name: Switch off HDMI
+  command: /opt/vc/bin/tvservice -o
+  when: rpi_tvservice_off_state not in rpi_tvservice_result.stdout
+
+- name: Switch HDMI off and set off on boot
+  block:
+    - name: Ensure rc.local exists
+      become: yes
+      file:
+        path: '/etc/rc.local'
+        state: touch
+    - name: Switch off HDMI on boot
+      become: yes
+      lineinfile:
+        path: '/etc/rc.local'
+        line: /opt/vc/bin/tvservice -o
+        state: present
