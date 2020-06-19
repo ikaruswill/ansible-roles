@@ -1,0 +1,88 @@
+---
+- name: Check if ssh key exists
+  stat:
+    path: '/home/{{ ansible_user }}/.ssh/id_rsa'
+  register: ssh_key_stat
+
+- name: Create .ssh directory
+  file:
+    path: '/home/{{ ansible_user }}/.ssh/'
+    state: directory
+
+- name: Generate ssh key
+  command: 'ssh-keygen -t {{ ssh_keygen_algorithm }} -b {{ ssh_keygen_bits }} -N "{{ ssh_keygen_password }}" -f /home/{{ ansible_user }}/.ssh/id_{{ ssh_keygen_algorithm }}'
+  when: ssh_key_stat.stat.exists == False
+
+- name: Slurp public keys from all nodes
+  slurp:
+    src: '/home/{{ ansible_user }}/.ssh/id_{{ ssh_keygen_algorithm }}.pub'
+  register: ssh_key_slurp
+
+- name: Copy public keys of all nodes into authorized_keys
+  authorized_key:
+    user: '{{ ansible_user }}'
+    state: present
+    key: '{{ hostvars[item].ssh_key_slurp.content | b64decode }}'
+  with_items: '{{ ansible_play_hosts }}'
+  when: ssh_enable_internode_ssh == True
+
+- name: Copy local public key to authorized_keys
+  authorized_key:
+    user: '{{ ansible_user }}'
+    state: present
+    key: "{{ lookup('file', ssh_admin_key) }}"
+
+- name: Slurp host keys from all nodes
+  slurp:
+    src: '/etc/ssh/ssh_host_{{ ssh_host_key_algorithm }}_key.pub'
+  register: ssh_host_key_slurp
+
+- name: Insert all nodes into global known_hosts
+  become: yes
+  known_hosts:
+    name: '{{ item }}'
+    key: '{{ item }} {{ hostvars[item].ssh_host_key_slurp.content | b64decode }}'
+    path: '/etc/ssh/ssh_known_hosts'
+    hash_host: '{{ ssh_hash_known_hosts }}'
+    state: present
+  with_items: '{{ ansible_play_hosts }}'
+
+- name: Secure SSH configuration
+  become: yes
+  lineinfile:
+    path: '{{ ssh_sshd_config_path }}'
+    regexp: '{{ item.regexp }}'
+    line: '{{ item.line }}'
+    state: present
+  with_items:
+    - regexp: '{{ comment_re_prefix }}Port'
+      line: 'Port {{ ssh_port }}'
+    - regexp: '{{ comment_re_prefix }}PasswordAuthentication'
+      line: 'PasswordAuthentication {{ ssh_password_auth }}'
+    - regexp: '{{ comment_re_prefix }}PermitRootLogin'
+      line: 'PermitRootLogin {{ ssh_permit_root_login }}'
+    - regexp: '{{ comment_re_prefix }}UseDNS'
+      line: 'UseDNS {{ ssh_usedns }}'
+    - regexp: '{{ comment_re_prefix }}PermitEmptyPasswords'
+      line: 'PermitEmptyPasswords {{ ssh_permit_empty_passwords }}'
+    - regexp: '{{ comment_re_prefix }}ChallengeResponseAuthentication'
+      line: 'ChallengeResponseAuthentication {{ ssh_challenge_response_auth }}'
+    - regexp: '{{ comment_re_prefix }}GSSAPIAuthentication'
+      line: 'GSSAPIAuthentication {{ ssh_gss_api_auth }}'
+    - regexp: '{{ comment_re_prefix }}X11Forwarding'
+      line: 'X11Forwarding {{ ssh_x11_forwarding }}'
+  notify:
+    - restart ssh
+
+- name: Secure SSH hosts configuration
+  become: yes
+  lineinfile:
+    path: '{{ ssh_config_path }}'
+    regexp: '{{ item.regexp }}'
+    line: '{{ item.line }}'
+    state: present
+  with_items:
+    - regexp: '{{ comment_re_prefix }}HashKnownHosts'
+      line: 'HashKnownHosts {{ ssh_hash_known_hosts }}'
+  notify:
+    - restart ssh
