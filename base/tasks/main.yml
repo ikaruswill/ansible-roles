@@ -1,0 +1,30 @@
+---
+- name: Set /etc/hosts for other nodes
+  become: yes
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\s+{{ item }}$'
+    line: "{{ hostvars[item].ansible_default_ipv4.address }}\t{{item}}"
+    state: present
+  when: hostvars[item].ansible_default_ipv4.address is defined
+  loop: '{{ groups.all | difference([inventory_hostname])}}'
+
+- name: Install common packages
+  become: yes
+  apt:
+    name: '{{ base_apt_packages }}'
+    state: present
+
+- name: Set default locale
+  become: yes
+  lineinfile:
+    dest: /etc/default/locale
+    regexp: 'LANG=.+'
+    line: 'LANG={{ base_default_locale }}'
+    state: present
+
+- name: Enable locale
+  become: yes
+  locale_gen:
+    name: '{{ base_default_locale }}'
+    state: present
