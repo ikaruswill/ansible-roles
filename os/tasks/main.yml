@@ -1,0 +1,38 @@
+---
+- name: Set hostname
+  become: yes
+  hostname:
+    name: '{{ inventory_hostname }}'
+
+- name: Set /etc/hosts hostname
+  become: yes
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '(127.0.1.1\s+).+$'
+    backrefs: yes
+    line: '\g<1>{{ inventory_hostname }}'
+    state: present
+
+- name: Check if swap is enabled
+  shell: swapon -s | wc -l
+  register: swap_enabled
+
+- name: Disable swap
+  become: yes
+  shell: "{{ item }}"
+  with_items: 
+    - dphys-swapfile swapoff
+    - dphys-swapfile uninstall
+    - update-rc.d dphys-swapfile disable
+  when: swap_enabled.stdout != "1"
+
+- name: Add users to passwordless sudoers.
+  become: yes
+  lineinfile:
+    dest: /etc/sudoers
+    regexp: '^{{ item }}'
+    line: '{{ item }} ALL=(ALL) NOPASSWD: ALL'
+    state: present
+    validate: 'visudo -cf %s'
+  with_items: "{{ security_sudoers_passwordless }}"
+  when: security_sudoers_passwordless | length > 0
