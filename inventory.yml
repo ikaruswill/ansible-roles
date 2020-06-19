@@ -1,0 +1,8 @@
+---
+all:
+  vars:
+    ssh_admin_key: ~/id_rsa.pub
+    os_passwordless_sudoers:
+    - pi
+  hosts:
+    o[1:5]:
