@@ -1,0 +1,16 @@
+---
+- name: Get docker install script
+  uri:
+    url: https://get.docker.com
+    follow_redirects: safe
+    return_content: yes
+  register: docker_install_script
+
+- name: Write docker install script
+  copy:
+    content: '{{ docker_install_script.content }}'
+    dest: '/tmp/install_docker.sh'
+    mode: '755'
+
+- name: Run docker install script
+  command: 'sh /tmp/install_docker.sh'

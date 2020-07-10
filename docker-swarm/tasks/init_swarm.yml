@@ -1,0 +1,10 @@
+---
+- name: Check and initialize swarm on manager
+  command: 'docker swarm init {{ ("--advertise-addr" + docker_swarm_manager.ip) if "ip" in docker_swarm_manager else "" }}'
+  when: 'ansible_hostname == docker_swarm_manager.hostname'
+  register: docker_swarm_init_result
+  changed_when: docker_swarm_init_result.rc == 0
+
+
+- include: join_swarm.yml
+  when: hostvars[docker_swarm_manager.hostname].docker_swarm_init_result.rc == 0

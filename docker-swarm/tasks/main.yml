@@ -1,0 +1,12 @@
+---
+- name: Check docker installation
+  command: dpkg -l docker-ce
+  no_log: yes
+  register: docker_installed
+  failed_when: false
+  changed_when: 'docker_installed.rc == 1'
+
+- include: install_docker.yml
+  when: 'docker_installed.rc == 1'
+
+- include: init_swarm.yml

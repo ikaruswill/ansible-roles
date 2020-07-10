@@ -1,0 +1,9 @@
+---
+- name: Get swarm worker join-token
+  command: 'docker swarm join-token -q worker'
+  register: docker_swarm_worker_join_token
+  when: 'ansible_hostname == docker_swarm_manager.hostname'
+
+- name: Join workers into swarm
+  command: 'docker swarm join --token {{ hostvars[docker_swarm_manager.hostname].docker_swarm_worker_join_token.stdout }} {{ hostvars[docker_swarm_manager.hostname].ansible_default_ipv4.address }}:2377'
+  when: 'ansible_hostname in ansible_play_hosts | difference(docker_swarm_manager.hostname)'
