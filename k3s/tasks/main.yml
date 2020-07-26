@@ -1,0 +1,6 @@
+---
+- include: init_master.yml
+  when: '"master" in group_names'
+
+- include: init_nodes.yml
+  when: '"workers" in group_names'

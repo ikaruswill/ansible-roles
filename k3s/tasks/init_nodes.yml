@@ -1,0 +1,13 @@
+---
+- name: Install k3s
+  shell: curl -sfL https://get.k3s.io | sh -
+  args:
+    warn: false
+  environment:
+    INSTALL_K3S_VERSION: '{{ k3s_version }}'
+    K3S_URL: 'https://{{ k3s_master.ip }}:6443'
+    K3S_TOKEN: '{{ hostvars[k3s_master.hostname].k3s_node_token_encoded.content | b64decode | trim }}'
+  register: k3s_agent_install
+
+- debug: msg="{{ k3s_agent_install.stdout_lines }}"
+- debug: msg="{{ k3s_agent_install.stderr_lines }}"

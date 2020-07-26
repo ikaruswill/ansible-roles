@@ -1,0 +1,9 @@
+---
+k3s_master:
+  hostname: none
+  ip: none
+  flags:
+  - --no-deploy servicelb
+  - --no-deploy traefik
+
+k3s_version: ''
