@@ -1,0 +1,13 @@
+---
+# - hosts: k2:k7:leviathan
+#   tasks:
+#   - name: Hack for Raspbian Buster/k3s iptables-nf incompatibility
+#     become: yes
+#     shell: |
+#       iptables -F
+#       update-alternatives --set iptables /usr/sbin/iptables-legacy
+#       update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
+
+- hosts: cluster
+  roles:
+  - k3s
