@@ -1,4 +1,4 @@
-ansible==2.9.10
+ansible==4.2.0
 certifi==2020.4.5.2
 cffi==1.14.0
 cryptography==2.9.2
