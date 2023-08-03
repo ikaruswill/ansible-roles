@@ -1,9 +1,1 @@
 ansible==2.9.10
-certifi==2020.4.5.2
-cffi==1.14.0
-cryptography==2.9.2
-Jinja2==2.11.2
-MarkupSafe==1.1.1
-pycparser==2.20
-PyYAML==5.4
-six==1.15.0
