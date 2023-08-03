@@ -1,0 +1,18 @@
+---
+- name: Stop zram-config
+  become: yes
+  service: 
+    name: zram-config
+    state: stopped
+
+- name: Configure zram-config
+  become: yes
+  template:
+    src: '../templates/ztab.j2'
+    dest: '{{ zram_config_path }}'
+
+- name: Start zram-config
+  become: yes
+  service: 
+    name: zram-config
+    state: started

@@ -1,0 +1,14 @@
+---
+- name: Check if zram-config is installed
+  shell: ls /etc/systemd/system | grep zram-config.service
+  register: zram_installed_result
+  changed_when: false
+  failed_when: false
+
+- include: zram-uninstall.yml
+  when: zram_installed_result.rc == 0 and zram_upgrade
+
+- include: zram-install.yml
+  when: zram_installed_result.rc == 1 or (zram_installed_result.rc == 0 and zram_upgrade)
+
+- include: zram-config.yml

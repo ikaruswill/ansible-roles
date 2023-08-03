@@ -1,0 +1,53 @@
+---
+zram_repo: https://github.com/ecdye/zram-config.git
+zram_clone_path: /tmp/zram-config
+zram_config_path: /etc/ztab
+zram_uninstall_path: /usr/local/share/zram-config/uninstall.bash
+zram_upgrade: false
+
+zram_swap_default_swap_priority: 75
+zram_swap_default_page_cluster: 0
+zram_swap_default_swappiness: 150
+
+zram_log_default_target_dir: /var/log
+zram_log_default_bind_dir: /log.bind
+zram_log_default_oldlog_dir: /opt/zram/oldlog
+
+# Example configuration
+# zram_swap:
+#   alg: lz4
+#   mem_limit: 250M
+#   disk_size: 750M
+#   swap_priority: 75 # Optional
+#   page_cluster: 0 # Optional
+#   swappiness: 80 # Optional
+
+# zram_log:
+#   alg: lz4
+#   mem_limit: 50M
+#   disk_size: 150M
+#   target_dir: /var/log # Optional
+#   bind_dir: /log.bind # Optional
+#   oldlog_dir: /opt/zram/oldlog # Optional
+
+# zram_extra_devices:
+# - type: swap
+#   alg: lz4
+#   mem_limit: 250M
+#   disk_size: 750M
+#   swap_priority: 75 # Optional
+#   page_cluster: 0 # Optional
+#   swappiness: 80 # Optional
+# - type: log
+#   alg: lz4
+#   mem_limit: 50M
+#   disk_size: 150M
+#   target_dir: /var/log # Optional
+#   bind_dir: /log.bind # Optional
+#   oldlog_dir: /opt/zram/oldlog # Optional
+# - type: dir
+#   alg: lz4
+#   mem_limit: 50M
+#   disk_size: 150M
+#   target_dir: /home/pi
+#   bind_dir: /pi.bind

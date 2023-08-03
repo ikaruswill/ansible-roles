@@ -1,0 +1,28 @@
+---
+- name: Clone zram-config repository
+  git:
+    repo: '{{ zram_repo }}'
+    dest: '{{ zram_clone_path }}'
+    depth: '1'
+    force: yes
+
+- name: Enable execution of install script
+  file:
+    path: '{{ zram_clone_path }}/install.bash'
+    mode: 755
+
+- name: Run install script
+  become: yes
+  command: './install.bash'
+  args:
+    chdir: '{{ zram_clone_path }}'
+  register: zram_config_install
+
+- debug: msg="{{ zram_config_install.stdout_lines }}"
+- debug: msg="{{ zram_config_install.stderr_lines }}"
+
+- name: Cleanup
+  become: yes
+  file:
+    path: '{{ zram_clone_path }}'
+    state: absent

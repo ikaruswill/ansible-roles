@@ -1,0 +1,14 @@
+---
+- name: Enable execution of uninstall script
+  become: yes
+  file:
+    path: '{{ zram_uninstall_path }}'
+    mode: 755
+
+- name: Run uninstall script
+  become: yes
+  command: '{{ zram_uninstall_path }}'
+  register: zram_config_uninstall
+
+- debug: msg="{{ zram_config_uninstall.stdout_lines }}"
+- debug: msg="{{ zram_config_uninstall.stderr_lines }}"

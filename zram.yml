@@ -1,0 +1,13 @@
+---
+- hosts: all
+  roles:
+  - zram
+  vars:
+    zram_log:
+      alg: lzo-rle
+      mem_limit: 64M
+      disk_size: 192M
+    zram_swap:
+      alg: lzo-rle
+      mem_limit: 512M
+      disk_size: 1024M
